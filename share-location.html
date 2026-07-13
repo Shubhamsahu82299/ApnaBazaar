@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Share Location via WhatsApp</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding-top: 80px;
+      background: #f5f5f5;
+    }
+    button {
+      padding: 12px 24px;
+      font-size: 18px;
+      background-color: #25d366;
+      border: none;
+      border-radius: 8px;
+      color: white;
+      cursor: pointer;
+    }
+    button:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+    #status {
+      margin-top: 20px;
+      font-size: 16px;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+
+<h2>📍 Share Your Location via WhatsApp</h2>
+
+<button onclick="shareLocation()">Send Location via WhatsApp</button>
+<div id="status"></div>
+
+<script>
+  function shareLocation() {
+    const status = document.getElementById('status');
+    status.innerText = "Getting your location...";
+
+    if (!navigator.geolocation) {
+      status.innerText = "Geolocation is not supported by your browser.";
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+        const mapLink = `https://maps.google.com/?q=${lat},${lon}`;
+
+        const phoneNumber = "91ApnaBazaar"; // ✅ Your number with +91 → 91 prefix
+        const message = `Hi! Here is my current location: ${mapLink}`;
+
+        const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+        status.innerText = "Opening WhatsApp...";
+        window.open(whatsappUrl, '_blank');
+      },
+      () => {
+        status.innerText = "Unable to retrieve your location.";
+      }
+    );
+  }
+</script>
+
+</body>
+</html>

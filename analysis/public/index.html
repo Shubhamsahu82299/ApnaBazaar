@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PHP SPA Admin Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-50 text-gray-900">
+  <div class="max-w-7xl mx-auto p-4">
+    <header class="flex items-center justify-between mb-6">
+      <h1 class="text-2xl font-bold">Admin Dashboard</h1>
+      <nav class="space-x-2">
+        <button class="tab px-3 py-2 bg-white rounded-xl shadow" data-tab="dashboard">Dashboard</button>
+        <button class="tab px-3 py-2 bg-white rounded-xl shadow" data-tab="inventory">Inventory</button>
+        <button class="tab px-3 py-2 bg-white rounded-xl shadow" data-tab="sales">Sales</button>
+        <button class="tab px-3 py-2 bg-white rounded-xl shadow" data-tab="customers">Customers</button>
+        <button class="tab px-3 py-2 bg-white rounded-xl shadow" data-tab="operations">Operations</button>
+        <button class="tab px-3 py-2 bg-white rounded-xl shadow" data-tab="variants">Variants</button>
+      </nav>
+    </header>
+
+    <!-- Dashboard -->
+    <section id="dashboard" class="tab-panel grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="bg-white rounded-2xl p-4 shadow">
+        <h2 class="font-semibold mb-2">Top Selling Products</h2>
+        <canvas id="chartTopProducts"></canvas>
+      </div>
+      <div class="bg-white rounded-2xl p-4 shadow">
+        <h2 class="font-semibold mb-2">Revenue (Daily)</h2>
+        <canvas id="chartRevenueDaily"></canvas>
+      </div>
+      <div class="bg-white rounded-2xl p-4 shadow">
+        <h2 class="font-semibold mb-2">Payment Split</h2>
+        <canvas id="chartPayments"></canvas>
+      </div>
+      <div class="bg-white rounded-2xl p-4 shadow">
+        <h2 class="font-semibold mb-2">Order Status</h2>
+        <canvas id="chartStatus"></canvas>
+      </div>
+    </section>
+
+    <!-- Inventory -->
+    <section id="inventory" class="tab-panel hidden">
+      <div class="bg-white rounded-2xl p-4 shadow">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="font-semibold">Low Stock (<=10)</h2>
+          <input id="thresh" type="number" class="border rounded px-2 py-1 w-28" value="10"/>
+          <button id="btnLoadLow" class="ml-2 px-3 py-1 bg-black text-white rounded-xl">Reload</button>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="min-w-full text-sm">
+            <thead><tr class="text-left">
+              <th class="p-2">Product</th>
+              <th class="p-2">Mgmt</th>
+              <th class="p-2">Variant</th>
+              <th class="p-2">Stock</th>
+            </tr></thead>
+            <tbody id="lowStockBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sales -->
+    <section id="sales" class="tab-panel hidden">
+      <div class="grid md:grid-cols-2 gap-6">
+        <div class="bg-white rounded-2xl p-4 shadow">
+          <h2 class="font-semibold mb-2">Revenue by Product</h2>
+          <div class="overflow-x-auto">
+            <table class="min-w-full text-sm">
+              <thead><tr><th class="p-2 text-left">Product</th><th class="p-2 text-right">Revenue</th></tr></thead>
+              <tbody id="revTable"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="bg-white rounded-2xl p-4 shadow">
+          <h2 class="font-semibold mb-2">Profit by Product</h2>
+          <div class="overflow-x-auto">
+            <table class="min-w-full text-sm">
+              <thead><tr><th class="p-2 text-left">Product</th><th class="p-2 text-right">Profit</th></tr></thead>
+              <tbody id="profitTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Customers -->
+    <section id="customers" class="tab-panel hidden">
+      <div class="bg-white rounded-2xl p-4 shadow">
+        <h2 class="font-semibold mb-2">Top Customers</h2>
+        <div class="overflow-x-auto">
+          <table class="min-w-full text-sm">
+            <thead><tr><th class="p-2 text-left">User ID</th><th class="p-2 text-right">Orders</th><th class="p-2 text-right">Total Spent</th></tr></thead>
+            <tbody id="custTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Operations -->
+    <section id="operations" class="tab-panel hidden">
+      <div class="grid md:grid-cols-2 gap-6">
+        <div class="bg-white rounded-2xl p-4 shadow">
+          <h2 class="font-semibold mb-2">Order Status Split</h2>
+          <canvas id="opsStatus"></canvas>
+        </div>
+        <div class="bg-white rounded-2xl p-4 shadow">
+          <h2 class="font-semibold mb-2">Payment Method Split</h2>
+          <canvas id="opsPayment"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- Variants -->
+    <section id="variants" class="tab-panel hidden">
+      <div class="bg-white rounded-2xl p-4 shadow">
+        <div class="flex items-center gap-2 mb-3">
+          <select id="productSelect" class="border rounded px-2 py-1"></select>
+          <button id="btnLoadVariants" class="px-3 py-1 bg-black text-white rounded-xl">Load Variants</button>
+          <button id="btnRecompute" class="px-3 py-1 bg-gray-800 text-white rounded-xl" title="Sum variant stock into product stock (dependent only)">Recompute Stock</button>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="min-w-full text-sm">
+            <thead><tr>
+              <th class="p-2 text-left">ID</th>
+              <th class="p-2 text-left">Label</th>
+              <th class="p-2 text-right">Price</th>
+              <th class="p-2 text-right">Buy Price</th>
+              <th class="p-2 text-right">Stock</th>
+              <th class="p-2">Actions</th>
+            </tr></thead>
+            <tbody id="variantBody"></tbody>
+          </table>
+        </div>
+        <div class="mt-4 flex gap-2">
+          <input id="newLabel" placeholder="Variant label" class="border rounded px-2 py-1">
+          <input id="newPrice" type="number" step="0.01" placeholder="Price" class="border rounded px-2 py-1 w-28">
+          <input id="newBuy" type="number" step="0.01" placeholder="Buy price" class="border rounded px-2 py-1 w-28">
+          <input id="newStock" type="number" placeholder="Stock" class="border rounded px-2 py-1 w-24">
+          <button id="btnAddVariant" class="px-3 py-1 bg-emerald-600 text-white rounded-xl">Add Variant</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+<script>
+const API = location.origin + '/api'; // adjust path if needed
+
+// Tabs
+document.querySelectorAll('.tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const id = btn.dataset.tab;
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('hidden'));
+    document.getElementById(id).classList.remove('hidden');
+  });
+});
+
+// Charts
+let chartTop, chartRev, chartPay, chartStatus, chartOpsStatus, chartOpsPayment;
+
+function numberFormat(n){ return new Intl.NumberFormat().format(n); }
+function currency(n){ return '₹ ' + numberFormat(parseFloat(n||0).toFixed(2)); }
+
+async function fetchJSON(url, options={}){
+  const res = await fetch(url, options);
+  if (!res.ok) throw new Error('HTTP '+res.status);
+  return await res.json();
+}
+
+async function loadDashboard(){
+  // Top products
+  const top = await fetchJSON(`${API}/analytics.php?action=top_products&limit=10`);
+  const labels = top.map(r=>r.productName);
+  const data = top.map(r=>r.total_sold);
+  if (chartTop) chartTop.destroy();
+  chartTop = new Chart(document.getElementById('chartTopProducts'), {
+    type: 'bar',
+    data: { labels, datasets: [{ label: 'Units Sold', data }] }
+  });
+
+  // Revenue daily
+  const rev = await fetchJSON(`${API}/analytics.php?action=revenue_daily`);
+  const rlabels = rev.map(r=>r.day);
+  const rdata = rev.map(r=>r.revenue);
+  if (chartRev) chartRev.destroy();
+  chartRev = new Chart(document.getElementById('chartRevenueDaily'), {
+    type: 'line',
+    data: { labels: rlabels, datasets: [{ label: 'Revenue', data: rdata }] }
+  });
+
+  // Payment split
+  const pay = await fetchJSON(`${API}/analytics.php?action=payment_split`);
+  if (chartPay) chartPay.destroy();
+  chartPay = new Chart(document.getElementById('chartPayments'), {
+    type: 'pie',
+    data: { labels: pay.map(p=>p.paymentMethod||'N/A'), datasets: [{ data: pay.map(p=>p.total) }] }
+  });
+
+  // Status
+  const st = await fetchJSON(`${API}/analytics.php?action=order_status_split`);
+  if (chartStatus) chartStatus.destroy();
+  chartStatus = new Chart(document.getElementById('chartStatus'), {
+    type: 'doughnut',
+    data: { labels: st.map(s=>s.orderStatus||'N/A'), datasets: [{ data: st.map(s=>s.total) }] }
+  });
+}
+
+async function loadInventory(){
+  const th = document.getElementById('thresh').value || 10;
+  const rows = await fetchJSON(`${API}/products.php?action=low_stock&threshold=${th}`);
+  const tb = document.getElementById('lowStockBody');
+  tb.innerHTML = '';
+  rows.forEach(r=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td class="p-2">${r.productName}</td>
+                    <td class="p-2">${r.stock_management_type}</td>
+                    <td class="p-2">${r.variant_label||'-'}</td>
+                    <td class="p-2">${r.stock_management_type==='dependent' ? (r.variant_stock ?? '-') : (r.product_stock ?? '-')}</td>`;
+    tb.appendChild(tr);
+  });
+}
+document.getElementById('btnLoadLow').addEventListener('click', loadInventory);
+
+// Sales tables
+async function loadSalesTables(){
+  const rev = await fetchJSON(`${API}/analytics.php?action=revenue_by_product`);
+  const revBody = document.getElementById('revTable');
+  revBody.innerHTML = rev.map(r=>`<tr><td class="p-2">${r.productName}</td><td class="p-2 text-right">${currency(r.revenue)}</td></tr>`).join('');
+
+  const pr = await fetchJSON(`${API}/analytics.php?action=profit_by_product`);
+  const prBody = document.getElementById('profitTable');
+  prBody.innerHTML = pr.map(r=>`<tr><td class="p-2">${r.productName}</td><td class="p-2 text-right">${currency(r.profit)}</td></tr>`).join('');
+}
+
+// Customers
+async function loadCustomers(){
+  const rows = await fetchJSON(`${API}/analytics.php?action=top_customers&limit=20`);
+  const tb = document.getElementById('custTable');
+  tb.innerHTML = rows.map(r=>`<tr>
+      <td class="p-2">${r.userId}</td>
+      <td class="p-2 text-right">${r.orders}</td>
+      <td class="p-2 text-right">${currency(r.total_spent)}</td></tr>`).join('');
+}
+
+// Variants editor
+async function loadProductsIntoSelect(){
+  const rows = await fetchJSON(`${API}/products.php?action=list`);
+  const sel = document.getElementById('productSelect');
+  sel.innerHTML = rows.map(r=>`<option value="${r.id}">${r.productName} (#${r.id}) [${r.stock_management_type}]</option>`).join('');
+}
+
+async function loadVariants(){
+  const product_id = document.getElementById('productSelect').value;
+  if (!product_id) return;
+  const rows = await fetchJSON(`${API}/variants.php?product_id=${product_id}`);
+  const tb = document.getElementById('variantBody');
+  tb.innerHTML = '';
+  rows.forEach(v=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td class="p-2">${v.id}</td>
+      <td class="p-2"><input data-id="${v.id}" data-field="variant_label" value="${v.variant_label}" class="border rounded px-2 py-1 w-40"/></td>
+      <td class="p-2 text-right"><input data-id="${v.id}" data-field="price" type="number" step="0.01" value="${v.price}" class="border rounded px-2 py-1 w-28 text-right"/></td>
+      <td class="p-2 text-right"><input data-id="${v.id}" data-field="variant_buy_price" type="number" step="0.01" value="${v.variant_buy_price}" class="border rounded px-2 py-1 w-28 text-right"/></td>
+      <td class="p-2 text-right"><input data-id="${v.id}" data-field="stock" type="number" value="${v.stock}" class="border rounded px-2 py-1 w-24 text-right"/></td>
+      <td class="p-2">
+        <button class="save px-2 py-1 bg-emerald-600 text-white rounded" data-id="${v.id}">Save</button>
+        <button class="del px-2 py-1 bg-red-600 text-white rounded" data-id="${v.id}">Delete</button>
+      </td>`;
+    tb.appendChild(tr);
+  });
+
+  // Attach handlers
+  tb.querySelectorAll('.save').forEach(btn=>{
+    btn.addEventListener('click', async () => {
+      const id = btn.dataset.id;
+      const rowInputs = tb.querySelectorAll(`input[data-id="${id}"]`);
+      const payload = { id: parseInt(id) };
+      rowInputs.forEach(inp => payload[inp.dataset.field] = inp.type==='number' ? Number(inp.value) : inp.value);
+      await fetchJSON(`${API}/variants.php`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      alert('Saved');
+    });
+  });
+  tb.querySelectorAll('.del').forEach(btn=>{
+    btn.addEventListener('click', async () => {
+      const id = btn.dataset.id;
+      if (!confirm('Delete variant #'+id+' ?')) return;
+      await fetchJSON(`${API}/variants.php?id=${id}`, { method: 'DELETE' });
+      loadVariants();
+    });
+  });
+}
+
+document.getElementById('btnLoadVariants').addEventListener('click', loadVariants);
+document.getElementById('btnRecompute').addEventListener('click', async ()=>{
+  const product_id = document.getElementById('productSelect').value;
+  if (!product_id) return;
+  const formData = new FormData();
+  formData.append('product_id', product_id);
+  const res = await fetchJSON(`${API}/products.php?action=recompute_stock`, { method: 'POST', body: formData });
+  alert('New product stock: '+res.new_stock);
+});
+
+document.getElementById('btnAddVariant').addEventListener('click', async ()=>{
+  const product_id = document.getElementById('productSelect').value;
+  const label = document.getElementById('newLabel').value;
+  const price = parseFloat(document.getElementById('newPrice').value || 0);
+  const buy = parseFloat(document.getElementById('newBuy').value || 0);
+  const stock = parseInt(document.getElementById('newStock').value || 0);
+  const payload = { product_id: Number(product_id), variant_label: label, price, variant_buy_price: buy, stock };
+  await fetchJSON(`${API}/variants.php`, {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify(payload)
+  });
+  document.getElementById('newLabel').value='';
+  document.getElementById('newPrice').value='';
+  document.getElementById('newBuy').value='';
+  document.getElementById('newStock').value='';
+  loadVariants();
+});
+
+// Initial load
+loadDashboard().catch(console.error);
+loadInventory().catch(console.error);
+loadSalesTables().catch(console.error);
+loadCustomers().catch(console.error);
+loadProductsIntoSelect().catch(console.error);
+</script>
+</body>
+</html>

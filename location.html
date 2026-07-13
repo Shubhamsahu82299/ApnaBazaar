@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Send Location via WhatsApp</title>
+</head>
+<body>
+  <h2>Send Your Location</h2>
+  <button onclick="getLocation()">Send Location on WhatsApp</button>
+
+  <script>
+    function getLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+
+          // ✅ WhatsApp Number (admin ka)
+          const phone = "918668464275"; // <-- apna number daalo (without +)
+          
+          // ✅ Message Text
+          const message = `Hi, this is my location: https://maps.google.com/?q=${lat},${lng}`;
+          
+          // ✅ WhatsApp URL
+          const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+          
+          // ✅ WhatsApp Open in New Tab
+          window.open(url, '_blank');
+        }, function(error) {
+          alert("Location permission denied or unavailable.");
+        });
+      } else {
+        alert("Geolocation is not supported by your browser.");
+      }
+    }
+  </script>
+</body>
+</html>
