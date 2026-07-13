@@ -142,115 +142,42 @@ if (isset($_POST['login'])) {
   <link href="assets/css/font-awesome.min.css" rel="stylesheet">
   <link href="assets/css/main.css" rel="stylesheet">
   <link rel="shortcut icon" href="assets/images/title.png">
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
-
   <style>
-    * {
-        font-family: 'Plus Jakarta Sans', sans-serif !important;
-    }
-    body {
-        background-color: #f8fafc !important;
-        color: #1e293b;
-    }
     .auth-card {
-      max-width: 380px;
-      margin: 60px auto;
-      background: #ffffff;
-      padding: 30px 24px;
-      border-radius: 16px;
-      border: 1px solid #e2e8f0;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+      max-width: 360px;
+      margin: 40px auto;
+      background: #fff;
+      padding: 25px 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
     .auth-tabs {
       display: flex;
       justify-content: space-between;
-      margin-bottom: 24px;
-      background: #f1f5f9;
-      padding: 4px;
-      border-radius: 10px;
+      margin-bottom: 20px;
     }
     .auth-tabs button {
       flex: 1;
       background: none;
       border: none;
-      font-size: 14px;
-      font-weight: 700;
-      padding: 8px;
-      color: #64748b;
-      border-radius: 8px;
-      transition: all 0.2s ease;
+      font-weight: bold;
+      padding: 10px;
+      border-bottom: 2px solid transparent;
     }
     .auth-tabs button.active {
-      background: #ffffff;
-      color: #0d9488;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      border-bottom: 2px solid #007bff;
+      color: #007bff;
     }
     .form-control {
       font-size: 14px;
+    }
+    .form-label {
       font-weight: 500;
-      padding: 10px 14px;
-      border-radius: 10px;
-      border: 1px solid #cbd5e1;
-      color: #0f172a;
-      background-color: #ffffff;
     }
-    .form-control:focus {
-      border-color: #0d9488;
-      box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.12);
-      background-color: #ffffff;
-    }
-    .form-label, label {
-      font-weight: 600;
-      font-size: 13px;
-      color: #475569;
-      margin-bottom: 6px;
-    }
-    .form-check-input:checked {
-        background-color: #0d9488;
-        border-color: #0d9488;
-    }
-    .btn-primary-accent {
-        background: linear-gradient(135deg, #0d9488 0%, #10b981 100%);
-        color: #ffffff;
-        border: none;
-        font-weight: 700;
-        font-size: 14px;
-        padding: 11px;
-        border-radius: 10px;
-        box-shadow: 0 4px 12px rgba(13, 148, 136, 0.15);
-        transition: opacity 0.2s;
-    }
-    .btn-primary-accent:hover {
-        opacity: 0.95;
-        color: #ffffff;
-    }
-    .btn-outline-custom {
-        border: 1px solid #cbd5e1;
-        background: #ffffff;
-        color: #475569;
-        font-size: 13px;
-        font-weight: 600;
-        border-top-right-radius: 10px;
-        border-bottom-right-radius: 10px;
-    }
-    .btn-outline-custom:hover {
-        background: #f8fafc;
-        color: #0f172a;
-    }
-    .text-link-accent {
-        color: #0d9488;
-        font-weight: 600;
-        text-decoration: none;
-    }
-    .text-link-accent:hover {
-        color: #059669;
-        text-decoration: underline;
-    }
-    @media(max-width:576px) {
+    @media(max-width:576px){
       .auth-card {
-        margin: 24px auto;
-        padding: 20px 16px;
-        border-radius: 12px;
+        margin-top: 25px;
+        padding: 20px 15px;
       }
     }
   </style>
@@ -258,6 +185,7 @@ if (isset($_POST['login'])) {
 <body class="cnt-home">
 
 <?php include('includes/top-header.php'); ?>
+
 
 <div class="container">
   <div class="auth-card">
@@ -268,100 +196,126 @@ if (isset($_POST['login'])) {
 
     <!-- Login Form -->
     <form method="post" id="loginForm">
-      <div class="mb-2 text-danger small fw-semibold">
+      <div class="mb-2 text-danger small">
         <?php echo htmlentities($_SESSION['errmsg']); $_SESSION['errmsg'] = ""; ?>
       </div>
-      <h5 class="mb-3 text-center fw-bold text-dark" style="font-size: 16px;">Welcome Back</h5>
-      
+      <h5 class="mb-3 text-center">Existing User</h5>
       <div class="mb-3">
-        <label class="form-label">Email Address</label>
+        <label class="form-label">Email</label>
         <input type="email" name="email" class="form-control" required />
       </div>
-      
-      <div class="mb-2">
-        <label class="form-label" for="password">Password</label>
-        <input type="password" id="password" name="password" class="form-control" maxlength="6" required />
-      </div>
-
-      <!-- Show/hide checkbox -->
-      <div class="mb-3 form-check">
-        <input class="form-check-input" type="checkbox" id="showPassword" onclick="togglePassword('password')" />
-        <label class="form-check-label select-none" for="showPassword" style="font-weight: 500; color: #64748b;">Show Password</label>
-      </div>
-
-      <div class="mb-3 d-flex justify-content-between align-items-center">
-        <div class="form-check mb-0">
-          <input type="checkbox" class="form-check-input" id="rememberMe" name="remember_me" checked>
-          <label class="form-check-label select-none" for="rememberMe" style="font-weight: 500; color: #64748b;">Remember Me</label>
-        </div>
-        <div>
-          <a href="forgot-password.php" class="text-link-accent small">Forgot password?</a>
-        </div>
-      </div>
-      
-      <button type="submit" name="login" class="btn btn-primary-accent w-100">Login</button>
-    </form>
-
-    <!-- Signup Form -->
-    <form method="post" name="register" id="signupForm" style="display:none;" onsubmit="return validatePassword();">
-      <h5 class="mb-3 text-center fw-bold text-dark" style="font-size: 16px;">Create Account</h5>
-      
       <div class="mb-3">
-        <label class="form-label">Full Name</label>
-        <input type="text" name="fullname" class="form-control" required />
-      </div>
-      
-      <div class="mb-3">
-        <label class="form-label">Email Address</label>
-        <input type="email" name="emailid" id="email" class="form-control" onblur="userAvailability()" required />
-        <span id="user-availability-status1" class="small d-block mt-1"></span>
-      </div>
-      
-      <div class="mb-3">
-        <label class="form-label">Contact No.</label>
-        <input type="text" name="contactno" id="contactno" class="form-control" maxlength="10" required inputmode="numeric" pattern="[0-9]*" placeholder="Enter 10-digit number" />
-        <span id="contactMsg" class="text-danger small mt-1" style="display:none;">Digits only (max 10)</span>
-      </div>
-      
-      <div class="mb-3">
-        <label class="form-label">Password</label>
-        <div class="input-group">
-          <input type="password" name="password" id="signupPass" class="form-control" style="border-top-right-radius:0; border-bottom-right-radius:0;" maxlength="6" required />
-          <button type="button" class="btn btn-outline-custom" onclick="togglePasswordBtn('signupPass')">Show</button>
-        </div>
-        <span id="passLengthMsg" class="text-danger small d-block mt-1" style="display:none;">Maximum 6 digits allowed</span>
-      </div>
+  <label for="password">Password</label>
+  <input type="password" id="password" name="password" class="form-control"  maxlength="6" required />
+  
+  <div class="form-check mt-2">
 
-      <div class="mb-3">
-        <label class="form-label">Confirm Password</label>
-        <div class="input-group">
-          <input type="password" name="confirmpassword" id="confirmPass" class="form-control" style="border-top-right-radius:0; border-bottom-right-radius:0;" maxlength="6" required />
-          <button type="button" class="btn btn-outline-custom" onclick="togglePasswordBtn('confirmPass')">Show</button>
-        </div>
-      </div>
-
-      <div class="mb-4 form-check">
-        <input type="checkbox" class="form-check-input" id="signupRememberMe" name="remember_me" checked>
-        <label class="form-check-label select-none" for="signupRememberMe" style="font-weight: 500; color: #64748b;">Remember Me</label>
-      </div>
-      
-      <button type="submit" name="submit" class="btn btn-primary-accent w-100">Sign Up</button>
-    </form>
+   
   </div>
 </div>
+<!-- Password input -->
 
-<?php include('includes/brands-slider.php'); ?>
-<?php include('includes/footer.php'); ?>
 
-<script src="assets/js/jquery-1.11.1.min.js"></script>
-<script src="assets/js/bootstrap.min.js"></script>
+<!-- Show/hide checkbox -->
+<div class="form-check mt-2">
+  <input class="form-check-input" type="checkbox" id="showPassword" onclick="togglePassword('password')" />
+  <label class="form-check-label" for="showPassword">Show Password</label>
+</div>
+
 <script>
   function togglePassword(id) {
     const passwordInput = document.getElementById(id);
     passwordInput.type = passwordInput.type === "password" ? "text" : "password";
   }
+</script>
 
-  function togglePasswordBtn(id) {
+<script>
+  function togglePassword("login") {
+    const passwordInput = document.getElementById("password");
+    passwordInput.type = passwordInput.type === "password" ? "text" : "password";
+  }
+</script>
+
+      <div class="mb-3 form-check">
+        <input type="checkbox" class="form-check-input" id="rememberMe" name="remember_me" checked>
+        <label class="form-check-label" for="rememberMe">Remember Me</label>
+      </div>
+      <div class="mb-3 text-end">
+        <a href="forgot-password.php" class="text-decoration-none">Forgot password?</a>
+      </div>
+      <button type="submit" name="login" class="btn btn-primary w-100">Login</button>
+    </form>
+
+    <!-- Signup Form -->
+    
+    <form method="post" name="register" id="signupForm" style="display:none;" onsubmit="return validatePassword();">
+         <h5 class="mb-3 text-center">New User</h5>
+      <div class="mb-3">
+        <label class="form-label">Full Name</label>
+        <input type="text" name="fullname" class="form-control" required />
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Email</label>
+        <input type="email" name="emailid" id="email" class="form-control" onblur="userAvailability()" required />
+        <span id="user-availability-status1" class="small"></span>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Contact No.</label>
+       <input type="text" name="contactno" id="contactno" class="form-control" maxlength="10" required inputmode="numeric" pattern="[0-9]*" placeholder="Enter 10-digit number" />
+
+<span id="contactMsg" class="text-danger small" style="display:none;">Digits only (max 10)</span>
+
+<script>
+  const contactInput = document.getElementById('contactno');
+  const contactMsg = document.getElementById('contactMsg');
+
+  contactInput.addEventListener('input', function () {
+    // Remove all non-digit characters
+    this.value = this.value.replace(/\D/g, '');
+
+    // Show error message if user tries to type more than 10 digits
+    if (this.value.length > 10) {
+      this.value = this.value.slice(0, 10);
+      contactMsg.style.display = 'inline';
+    } else {
+      contactMsg.style.display = 'none';
+    }
+  });
+</script>
+
+      </div>
+     <div class="mb-3">
+  <label class="form-label">Password</label>
+  <div class="input-group">
+    <input type="password" name="password" id="signupPass" class="form-control" maxlength="6" < required />
+      <span id="passLengthMsg" class="text-danger small" style="display:none;">Maximum 6 digits allowed</span>
+    <button type="button" class="btn btn-outline-secondary" onclick="togglePassword('signupPass')">Show</button>
+  </div>
+</div>
+<script>
+  const passwordInput = document.getElementById('signupPass');
+  const message = document.getElementById('passLengthMsg');
+
+  passwordInput.addEventListener('input', function () {
+    if (this.value.length > 6) {
+      message.style.display = 'inline';
+      this.value = this.value.slice(0, 6);  // cut off extra characters
+    } else {
+      message.style.display = 'none';
+    }
+  });
+</script>
+
+<div class="mb-3">
+  <label class="form-label">Confirm Password</label>
+  <div class="input-group">
+    <input type="password" name="confirmpassword" id="confirmPass" class="form-control" maxlength="6"  required />
+    <button type="button" class="btn btn-outline-secondary" onclick="togglePassword('confirmPass')">Show</button>
+  </div>
+</div>
+
+<script>
+  function togglePassword(id) {
     const input = document.getElementById(id);
     const btn = input.nextElementSibling;
     if (input.type === "password") {
@@ -373,35 +327,24 @@ if (isset($_POST['login'])) {
     }
   }
 
-  const contactInput = document.getElementById('contactno');
-  const contactMsg = document.getElementById('contactMsg');
 
-  if(contactInput) {
-    contactInput.addEventListener('input', function () {
-      this.value = this.value.replace(/\D/g, '');
-      if (this.value.length > 10) {
-        this.value = this.value.slice(0, 10);
-        contactMsg.style.display = 'inline';
-      } else {
-        contactMsg.style.display = 'none';
-      }
-    });
-  }
+</script>
 
-  const passwordInput = document.getElementById('signupPass');
-  const message = document.getElementById('passLengthMsg');
+      <div class="mb-3 form-check">
+        <input type="checkbox" class="form-check-input" id="signupRememberMe" name="remember_me" checked>
+        <label class="form-check-label" for="signupRememberMe">Remember Me</label>
+      </div>
+      <button type="submit" name="submit" class="btn btn-primary w-100">Sign Up</button>
+    </form>
+  </div>
+</div>
 
-  if(passwordInput) {
-    passwordInput.addEventListener('input', function () {
-      if (this.value.length > 6) {
-        message.style.display = 'inline';
-        this.value = this.value.slice(0, 6);
-      } else {
-        message.style.display = 'none';
-      }
-    });
-  }
+<?php include('includes/brands-slider.php'); ?>
+<?php include('includes/footer.php'); ?>
 
+<script src="assets/js/jquery-1.11.1.min.js"></script>
+<script src="assets/js/bootstrap.min.js"></script>
+<script>
 function toggleTab(tab) {
   if (tab === 'login') {
     document.getElementById('loginForm').style.display = 'block';
@@ -425,7 +368,6 @@ function validatePassword() {
   }
   return true;
 }
-
 function userAvailability() {
   jQuery.ajax({
     url: "check_availability.php",
@@ -438,6 +380,7 @@ function userAvailability() {
   });
 }
 
+// ✅ Helper to get cookie by name
 function getCookie(name) {
     const value = "; " + document.cookie;
     const parts = value.split("; " + name + "=");
@@ -445,19 +388,26 @@ function getCookie(name) {
     return null;
 }
 
+// ✅ Save token in cookie + localStorage
 function saveAuthToken(token) {
+    // Save in cookie (30 days expiry)
     document.cookie = "auth_token=" + token + "; path=/; max-age=" + (30*24*60*60) + "; secure; samesite=strict";
+
+    // Save in localStorage
     localStorage.setItem("auth_token", token);
 }
 
+// ✅ Restore cookie if cleared
 function restoreAuthToken() {
     if (!getCookie("auth_token") && localStorage.getItem("auth_token")) {
         document.cookie = "auth_token=" + localStorage.getItem("auth_token") + "; path=/; max-age=" + (30*24*60*60) + "; secure; samesite=strict";
         console.log("🔄 Auth token restored from localStorage");
+        // Optionally refresh page to auto login
         location.reload();
     }
 }
 
+// ✅ Clear token on logout
 function clearAuthToken() {
     document.cookie = "auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
     localStorage.removeItem("auth_token");
